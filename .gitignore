@@ -1,0 +1,10 @@
+*.iso
+*.img
+
+*~
+beep
+beep-1.3
+
+*.gz
+
+custom-core
