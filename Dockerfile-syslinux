@@ -1,0 +1,16 @@
+#
+# docker build --platform=linux/amd64 -f Dockerfile-syslinux -t pfdii-syslinux-installer .
+#
+
+FROM archlinux:latest
+RUN pacman -Syu --noconfirm
+RUN pacman -S --noconfirm dosfstools syslinux util-linux multipath-tools
+RUN pacman -Scc --noconfirm   # Clean the package cache to reduce the image size
+
+WORKDIR /workspace
+VOLUME /workspace
+
+COPY setup-syslinux.sh /bin/setup-syslinux.sh
+
+ENTRYPOINT ["/bin/setup-syslinux.sh"]
+CMD ["disk.img"]
