@@ -1,0 +1,36 @@
+# -*- mode: shell -*-
+
+# Function to play a short beep
+short_beep() {
+    beep -f 1000 -l 200
+    sleep 0.2
+}
+
+# Function to play a long beep
+long_beep() {
+    beep -f 1000 -l 600
+    sleep 0.2
+}
+
+# Morse code for "Attention" (one long beep followed by one short beep)
+attention_signal() {
+    long_beep
+    short_beep
+#    echo "Attention signal sent."
+}
+
+# Morse code for "Man Overboard" (three long beeps)
+man_overboard_signal() {
+    long_beep
+    long_beep
+    long_beep
+#    echo "Man Overboard signal sent."
+}
+
+# Morse code for "All Clear" (one short beep, one long beep, one short beep)
+all_clear_signal() {
+    short_beep
+    long_beep
+    short_beep
+#    echo "All Clear signal sent."
+}

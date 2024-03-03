@@ -90,6 +90,7 @@ Done, you can try booting the image with:
 
   qemu-system-x86_64 -m 128M \\
     -drive file=disk.img,format=raw,index=0,media=disk \\
-    -boot c -display curses
+    -boot c \\
+    -display curses
 
 EOF
