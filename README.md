@@ -4,7 +4,7 @@ If we have an image and we need to provision it on hardware box many times, we d
 
 See this [post](https://aleksandr.vin/2024/03/02/pendrive-for-disk-image-infusions.html) for now.
 
-# TL;DR;
+## TL;DR;
 
 Create a pendrive image *disk.img*:
 
@@ -42,7 +42,7 @@ qemu-system-x86_64 -m 128M \
     -audiodev coreaudio,id=audio0 -machine pcspk-audiodev=audio0
 ```
 
-# Real USB
+## Real USB
 
 **TBD**
 
