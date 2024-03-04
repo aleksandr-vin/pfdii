@@ -10,6 +10,9 @@ beep-*
 pv
 pv-*
 
+lz4
+lz4*
+
 *.gz
 
 custom-core

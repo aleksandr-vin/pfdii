@@ -79,13 +79,13 @@ then
     echo -n "${NORMAL}"
 fi
 
-img=$(cd /mnt && ls -1 *.img)
+img=$(cd /mnt && ls -1 *.img *.img.lz4 2>/dev/null || echo "")
 
 if echo $img | wc -l | grep -e '^ *1$' >/dev/null
 then
     echo "${GREEN}Image for infusion: ${CYAN}${img}${NORMAL}"
 else    
-    echo "${RED}Too many images: $img${NORMAL}"
+    echo "${RED}Too many/few images: $img${NORMAL}"
     exit 1
 fi
 
@@ -109,7 +109,14 @@ fast_dd()
         echo -n ""  
     done ; echo -e "\n\n" ) &
 
-    dd if="${src}" bs=4M of="${dst}" conv=fsync
+    case "${src}" in
+        *.img.lz4)
+            lz4 ${LZ4_FLAGS} -c -d "${src}" | dd of="${dst}" ${DD_FLAGS- bs=4M conv=fsync}
+            ;;
+        *.img)
+            dd if="${src}" of="${dst}" ${DD_FLAGS- bs=4M conv=fsync}
+            ;;
+    esac
 }
 
 fast_dd

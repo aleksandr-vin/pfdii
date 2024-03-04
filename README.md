@@ -48,9 +48,21 @@ Can be done using *env* file in */Volumes/PFDII_BOOT/* with these options, for e
 
 ```shell
 DELAY=0
-LOG_TO_FILE=yes
-WITH_SOUND=no
-TARGET_DEVICE=/dev/nvme0n1
+LOG_TO_FILE="yes"
+WITH_SOUND="no"
+TARGET_DEVICE="/dev/nvme0n1"
+DD_FLAGS="bs=4M conv=fsync" # "bs=4M conv=fsync" are default
+LZ4_FLAGS="-v"
+```
+
+## Lz4-compressed images
+
+Lz4-compressed images **.img.lz4* are automatically decompressed and *dd*-ed. They should save space for sparce images with empty space.
+
+To compress the **.img* call:
+
+```bash
+lz4 -c golden.img > /Volumes/PFDII_PAYLOAD/golden.img.lz4
 ```
 
 ## Logging to TCP
