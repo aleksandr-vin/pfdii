@@ -4,13 +4,15 @@ set -e
 
 . /etc/init.d/tc-functions
 
-echo "${GREEN}Checking...${NORMAL}"
+TARGET_DEVICE=${TARGET_DEVICE?}
 
-if cat /proc/partitions | grep nvme0n1 >/dev/null
+echo -n "${GREEN}Checking ${YELLOW}${TARGET_DEVICE?}${GREEN} ..${NORMAL}"
+
+if cat /proc/partitions | grep "${TARGET_DEVICE#/dev/}" >/dev/null
 then
-    echo "${YELLOW}Target system detected${NORMAL}"
+    echo "${GREEN}. ok${NORMAL}"
     exit 0
 else
-    echo "${RED}No ${YELLOW}nvme0n1${RED} device detected${NORMAL}"
+    echo "${RED}. failed: No ${YELLOW}${TARGET_DEVICE?}${RED} device detected${NORMAL}"
     exit 1
 fi

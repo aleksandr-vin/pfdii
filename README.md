@@ -42,6 +42,17 @@ qemu-system-x86_64 -m 128M \
     -audiodev coreaudio,id=audio0 -machine pcspk-audiodev=audio0
 ```
 
+## Configuring
+
+Can be done using *env* file in */Volumes/PFDII_BOOT/* with these options, for example:
+
+```shell
+DELAY=0
+LOG_TO_FILE=yes
+WITH_SOUND=no
+TARGET_DEVICE=/dev/nvme0n1
+```
+
 ## Logging to TCP
 
 When copying image for infusion, run locally:
