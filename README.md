@@ -42,6 +42,54 @@ qemu-system-x86_64 -m 128M \
     -audiodev coreaudio,id=audio0 -machine pcspk-audiodev=audio0
 ```
 
+## Logging to TCP
+
+When copying image for infusion, run locally:
+
+```bash
+while true ; do sleep 1 ; nc -l 8866 ; done
+```
+
+And use ngrok to forward port from the Internet:
+
+```bash
+ngrok tcp 8866
+```
+
+You should see a line like:
+
+```
+Forwarding                    tcp://5.tcp.eu.ngrok.io:19442 -> localhost:8866
+```
+
+Write `5.tcp.eu.ngrok.io:19442` into */Volumes/PFDII_BOOT/log-to-tcp*:
+
+```bash
+cat > /Volumes/PFDII_BOOT/log-to-tcp <<EOF
+5.tcp.eu.ngrok.io:19442
+EOF
+```
+
+This way, you'll see the output of pfdii at work, like:
+
+```
+Logging stderr and stdout to tcp 5.tcp.eu.ngrok.io:19442 ....
+Connected at 2024-03-04T01:49:06+00:00
+Image for infusion: tails-amd64-6.0.img
+Waiting for 5 seconds before infusion...
+Infusing...
+339+1 records in
+339+1 records out
+1425014784 bytes (1.3GB) copied, 9.820562 seconds, 138.4MB/s
+real	0m 9.89s
+user	0m 0.05s
+sys	0m 5.94s
+Done
+Remove pendrive to reboot...
+Or ctrl-c to stop the script and enter shell...
+```
+
+
 ## Real USB
 
 **TBD**

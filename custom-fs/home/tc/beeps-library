@@ -2,14 +2,42 @@
 
 # Function to play a short beep
 short_beep() {
-    beep -f 1000 -l 200
-    sleep 0.2
+    beep -f 1000 -l 400
+    sleep 0.4
 }
 
 # Function to play a long beep
 long_beep() {
-    beep -f 1000 -l 600
-    sleep 0.2
+    beep -f 1000 -l 1200
+    sleep 0.4
+}
+
+# Short rapid blasts
+short_rapid_blasts() {
+    while true
+    do
+        short_beep
+    done
+}
+
+# Long beep every 1 min
+long_every_minute() {
+    while true
+    do
+        long_beep
+        sleep 60
+    done
+}
+
+# Long beep and two short every 1 min
+long_two_short_every_minute() {
+    while true
+    do
+        long_beep
+        short_beep
+        short_beep
+        sleep 30
+    done
 }
 
 # Morse code for "Attention" (one long beep followed by one short beep)

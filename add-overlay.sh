@@ -23,8 +23,9 @@ DEFAULT vmlinuz
 LABEL vmlinuz
     KERNEL ../vmlinuz
     INITRD ../pfdii-core.gz
-    APPEND nodhcp nozswap noswap ro noautonet quiet
+    APPEND nozswap noswap ro quiet
 EOF
+# noautonet nodhcp
 # Remove `quiet` kernel option if need debugging !
 
 
