@@ -7,16 +7,23 @@ trap cleanup EXIT
 
 cleanup() {
     hdiutil detach /Volumes/PFDII_BOOT
+    hdiutil detach /Volumes/Core
 }
 
-hdiutil detach /Volumes/PFDII_BOOT || echo ok
+hdiutil detach /Volumes/PFDII_BOOT 2>/dev/null || echo -n ""
+hdiutil detach /Volumes/Core 2>/dev/null || echo -n ""
 hdiutil attach disk.img
+hdiutil attach Core-current.iso
 
 (cd custom-fs && find . | cpio -o -H newc | gzip -2 > ../pfdii.gz)
 
-cat /Volumes/PFDII_BOOT/core.gz \
+[[ -r /Volumes/PFDII_BOOT/pfdii-core.gz ]] && mv /Volumes/PFDII_BOOT/{pfdii-,}core.gz
+
+cat /Volumes/Core/boot/core.gz \
     pfdii.gz \
-    > /Volumes/PFDII_BOOT/pfdii-core.gz
+    > /Volumes/PFDII_BOOT/core.gz # overwriting bytes in place
+
+mv /Volumes/PFDII_BOOT/{,pfdii-}core.gz
 
 cat > /Volumes/PFDII_BOOT/syslinux/syslinux.cfg <<EOF
 DEFAULT vmlinuz

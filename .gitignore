@@ -1,5 +1,6 @@
 *.iso
 *.img
+*.img.bz2
 
 *~
 
