@@ -22,13 +22,13 @@ diskutil partitionDisk "${disk_id}" 1 GPT  ExFAT "PFDII_DATA" 0b
 
 # Downloading Tiny Core Linux
 
-[[ -f Core-current.iso ]] || wget http://tinycorelinux.net/15.x/x86/release/Core-current.iso
+[[ -f CorePure64.iso ]] || wget http://www.tinycorelinux.net/15.x/x86_64/release/CorePure64-15.0.iso -O CorePure64.iso
 
-read core_disk_id core_disk_mount <<< $(hdiutil attach Core-current.iso)
+read core_disk_id core_disk_mount <<< $(hdiutil attach CorePure64.iso)
 
 function cleanup()
 {
-    hdiutil detach "${core_disk_id}"    
+    hdiutil detach "${core_disk_id}"
     hdiutil detach "${disk_id}"
 }
 
@@ -47,15 +47,15 @@ mkdir -p "${ESP_mount}/EFI/BOOT/"
 cat > "${ESP_mount}/EFI/BOOT/syslinux.cfg" <<EOF
 DEFAULT vmlinuz
 LABEL vmlinuz
-    KERNEL ../../vmlinuz
-    INITRD ../../core.gz
+    KERNEL ../../vmlinuz64
+    INITRD ../../corepure64.gz
     APPEND nodhcp nozswap noswap ro noautonet
 EOF
 #### Remove `quiet` kernel option if need debugging !
 
 # Copying kernel and system
 
-cp -v "${core_disk_mount}"/boot/{vmlinuz,core.gz} "${ESP_mount}/"
+cp -v "${core_disk_mount}"/boot/{vmlinuz64,corepure64.gz} "${ESP_mount}/"
 
 # Timestamping PFDII_DATA (mounted automatically by `diskutil partitionDisk`)
 
@@ -92,7 +92,7 @@ fi
 cat <<EOF
 Done, you can try booting the image with:
 
-  qemu-system-x86_64 -m 128M \\
+  qemu-system-x86_64 -m 256M \\
     -bios OVMF.fd \\
     -drive file=disk.img,format=raw,index=0,media=disk \\
     -boot c
