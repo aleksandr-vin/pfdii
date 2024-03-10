@@ -34,9 +34,23 @@ wait_for_pendrive_removal()
 
 echo "${GREEN}Mounting payload partition...${NORMAL}"
 
-sudo mount /dev/sda2 /mnt # PFDII_DATA partition
+PFDII_DATA=/mnt/sda2
 
-[[ -r /mnt/env ]] && source /mnt/env
+echo -n "${YELLOW}"
+timeout 20 sh -c '
+    echo -n "Waiting for /dev/sda2 to appear in /etc/fstab ...";
+    until cat /etc/fstab | grep /dev/sda2 >/dev/null
+    do
+	sleep 1;
+	echo -n ".";
+    done;
+    echo "";
+'
+echo -n "${NORMAL}"
+
+mount "${PFDII_DATA?}" # mounting PFDII_DATA partition via /etc/fstab
+
+[[ -r "${PFDII_DATA?}"/env ]] && source "${PFDII_DATA?}"/env
 
 DELAY="${DELAY-5}"
 
@@ -52,7 +66,7 @@ export TARGET_DEVICE
 
 ./check-target.sh
 
-logfile="/mnt/$(date -u "+%Y-%m-%dT%H%M%S_UTC").log"
+logfile=""${PFDII_DATA?}"/$(date -u "+%Y-%m-%dT%H%M%S_UTC").log"
 
 if [[ "${LOG_TO_FILE-no}" == "yes" ]]
 then
@@ -62,7 +76,7 @@ then
     exec >> >(sudo tee "${logfile}") 2>&1
 fi
 
-if [[ -r /mnt/log-to-tcp ]]
+if [[ -r "${PFDII_DATA?}"/log-to-tcp ]]
 then
     echo -n "${BLUE}"
     while IFS=: read log_host log_port
@@ -77,11 +91,17 @@ then
             exec > >(tee >(nc $log_host $log_port >/dev/null)) 2>&1
         fi
         echo "Connected at $(date -Iseconds)"
-    done < /mnt/log-to-tcp
+    done < "${PFDII_DATA?}"/log-to-tcp
     echo -n "${NORMAL}"
 fi
 
-img=$(cd /mnt && ls -1 *.img *.img.lz4 2>/dev/null || echo "")
+img=$(cd "${PFDII_DATA?}" && ls -1 *.img *.img.lz4 2>/dev/null || echo "")
+
+if [[ "$img" == "" ]]
+then
+    echo "${RED}No image for infusion found!${NORMAL}"
+    exit 1
+fi
 
 if echo $img | wc -l | grep -e '^ *1$' >/dev/null
 then
@@ -99,7 +119,7 @@ echo "${MAGENTA}Infusing...${NORMAL}"
 long_every_minute & long_every_minute_pid=$!
 
 echo -n "${CYAN}"
-src="/mnt/${img}"
+src=""${PFDII_DATA?}"/${img}"
 dst="${TARGET_DEVICE?}"
 
 fast_dd()
@@ -125,7 +145,7 @@ fast_dd
 
 echo -n "${NORMAL}"
 
-# sudo umount /mnt  ## FIXME: logging is still in progress, should stop gracefully
+# sudo umount "${PFDII_DATA?}"  ## FIXME: logging is still in progress, should stop gracefully
 
 echo "${MAGENTA}Done${NORMAL}"
 kill %1 # stop long_every_minute
