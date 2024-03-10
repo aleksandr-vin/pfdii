@@ -16,3 +16,5 @@ lz4*
 *.gz
 
 custom-core
+
+OVMF.fd

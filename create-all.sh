@@ -80,6 +80,15 @@ docker run -it --privileged --rm --platform=linux/amd64 \
 
 ############# DONE ###############
 
+if ! [[ -f OVMF.fd ]]
+then
+    docker build --platform=linux/amd64 -f Dockerfile-OVMF -t pfdii-ovmf .
+
+    docker run --rm --platform=linux/amd64 \
+       -v $(pwd):/out \
+       pfdii-ovmf
+fi
+
 cat <<EOF
 Done, you can try booting the image with:
 
