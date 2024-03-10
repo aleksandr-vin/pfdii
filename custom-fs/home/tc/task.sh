@@ -119,7 +119,7 @@ echo "${MAGENTA}Infusing...${NORMAL}"
 long_every_minute & long_every_minute_pid=$!
 
 echo -n "${CYAN}"
-src=""${PFDII_DATA?}"/${img}"
+src="${PFDII_DATA?}/${img}"
 dst="${TARGET_DEVICE?}"
 
 fast_dd()
@@ -144,6 +144,14 @@ fast_dd()
 fast_dd
 
 echo -n "${NORMAL}"
+
+if [[ -r "${PFDII_DATA?}"/post-dd.sh ]]
+then
+    echo "${MAGENTA}Running ${YELLOW}${PFDII_DATA?}/post-dd.sh${NORMAL} ...${NORMAL}"
+    echo -n "${WHITE}"
+    sh -c "${PFDII_DATA?}"/post-dd.sh
+    echo -n "${NORMAL}"    
+fi
 
 # sudo umount "${PFDII_DATA?}"  ## FIXME: logging is still in progress, should stop gracefully
 

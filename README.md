@@ -44,7 +44,7 @@ qemu-system-x86_64 -m 128M \
 
 ## Configuring
 
-Can be done using *env* file in */Volumes/PFDII_BOOT/* with these options, for example:
+Can be done using *env* file in */Volumes/PFDII_DATA/* with these options, for example:
 
 ```shell
 DELAY=0
@@ -56,6 +56,11 @@ TARGET_DEVICE="/dev/nvme0n1"
 DD_FLAGS="bs=4M conv=fsync" # "bs=4M conv=fsync" are default
 LZ4_FLAGS="-v"
 ```
+
+## Post-dd script
+
+Place a *post-dd.sh* in */Volumes/PFDII_DATA/* with custom code that will be executed after
+`dd` is completed.
 
 ## Lz4-compressed images
 
@@ -87,10 +92,10 @@ You should see a line like:
 Forwarding                    tcp://5.tcp.eu.ngrok.io:19442 -> localhost:8866
 ```
 
-Write `5.tcp.eu.ngrok.io:19442` into */Volumes/PFDII_BOOT/log-to-tcp*:
+Write `5.tcp.eu.ngrok.io:19442` into */Volumes/PFDII_DATA/log-to-tcp*:
 
 ```bash
-cat > /Volumes/PFDII_BOOT/log-to-tcp <<EOF
+cat > /Volumes/PFDII_DATA/log-to-tcp <<EOF
 5.tcp.eu.ngrok.io:19442
 EOF
 ```
