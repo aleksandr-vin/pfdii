@@ -50,6 +50,8 @@ Can be done using *env* file in */Volumes/PFDII_BOOT/* with these options, for e
 DELAY=0
 LOG_TO_FILE="yes"
 WITH_SOUND="no"
+WAIT_FOR_PENDRIVE_REMOVAL=no
+ON_COMPLETE=poweroff # or reboot (default is poweroff)
 TARGET_DEVICE="/dev/nvme0n1"
 DD_FLAGS="bs=4M conv=fsync" # "bs=4M conv=fsync" are default
 LZ4_FLAGS="-v"

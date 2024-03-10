@@ -156,12 +156,27 @@ cleanup()
 }
 
 long_two_short_every_minute & long_two_short_every_minute_pid=$!
-echo "${BLUE}Remove pendrive to reboot...${NORMAL}"
-echo "${BLUE}Or ctrl-c to stop the script and enter shell...${NORMAL}"
-wait_for_pendrive_removal
-kill "${long_two_short_every_minute_pid}" # stop long_two_short_every_minute
-echo "${BLUE}**** Pendrive removed ****${NORMAL}"
-echo "${BLUE}**** Will reboot in 2 seconds... ****${NORMAL}"
-sleep 2
-all_clear_signal
-sudo reboot
+
+if [[ "${WAIT_FOR_PENDRIVE_REMOVAL-yes}" == "yes" ]]
+then
+    echo "${BLUE}Remove pendrive to reboot...${NORMAL}"
+    echo "${BLUE}Or ctrl-c to stop the script and enter shell...${NORMAL}"
+    wait_for_pendrive_removal
+    echo "${BLUE}**** Pendrive removed ****${NORMAL}"
+    kill "${long_two_short_every_minute_pid}" # stop long_two_short_every_minute
+fi
+
+case "${ON_COMPLETE-default}" in
+    reboot)
+	echo "${BLUE}**** Will reboot in 2 seconds... ****${NORMAL}"
+	sleep 2
+	all_clear_signal
+	sudo reboot
+	;;
+    *)
+	echo "${BLUE}**** Will poweroff in 2 seconds... ****${NORMAL}"
+	sleep 2
+	all_clear_signal
+	sudo poweroff
+	;;	
+esac
