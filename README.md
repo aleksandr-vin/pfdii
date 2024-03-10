@@ -77,7 +77,7 @@ lz4 -c golden.img > /Volumes/PFDII_PAYLOAD/golden.img.lz4
 When copying image for infusion, run locally:
 
 ```bash
-while true ; do sleep 1 ; nc -l 8866 ; done
+nc -k -l 8866
 ```
 
 And use ngrok to forward port from the Internet:
@@ -122,10 +122,18 @@ Or ctrl-c to stop the script and enter shell...
 
 ## Real USB
 
-**TBD**
+Prepare *disk.img* first, then attach usb and check it's device name with:
 
-In general, differnece is only in:
+```shell
+diskutil list
+```
 
-1. Calling `diskutil partitionDisk` on a real usb device
-2. Copying FAT32 partition from *disk.img* in place of FAT32 partition on real usb device
-3. Copying MBR from *disk.img* to real usb device
+Partition a real usb device:
+```shell
+diskutil partitionDisk /dev/disk7 1 GPT  ExFAT "PFDII_DATA" 0b
+```
+
+Copy ESP partition from *disk.img* to usb:
+```shell
+./update-esp-on-pendrive.sh /dev/disk7s1
+```
