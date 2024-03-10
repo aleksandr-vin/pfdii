@@ -1,0 +1,23 @@
+FROM ubuntu:22.04
+
+RUN apt update
+RUN apt install -y gcc-multilib g++-multilib git iasl python3 python3-distutils \
+                   uuid-dev make g++ nasm #gcc-aarch64-linux-gnu
+
+WORKDIR /code
+
+ARG EDK2_TAG=edk2-stable202402
+
+RUN git clone --branch ${EDK2_TAG} https://github.com/tianocore/edk2.git
+RUN cd edk2 && git submodule update --init --recursive
+
+# Credits go to https://gist.github.com/haharoit/a81fecd847003626ef9ef700e4901d15
+SHELL ["/bin/bash", "-c"]
+RUN cd edk2 && \
+    source edksetup.sh && \
+    make -C BaseTools && \
+    build -a X64 -t GCC5 -p OvmfPkg/OvmfPkgX64.dsc
+
+#    GCC5_AARCH64_PREFIX=aarch64-linux-gnu- build -a AARCH64 -t GCC5 -p ArmVirtPkg/ArmVirtQemu.dsc
+
+CMD ["cp", "-v", "/code/edk2/Build/OvmfX64/DEBUG_GCC5/FV/OVMF.fd", "/out"]

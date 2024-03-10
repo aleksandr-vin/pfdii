@@ -16,9 +16,9 @@ function cleanup()
     hdiutil detach "${disk_id}"
 }
 
-# Creating 2 partitions (FAT32 and exFAT)
+# Creating 2 partitions: ESP (created by default) and exFAT
 
-diskutil partitionDisk "${disk_id}" 2 MBR fat32 "PFDII_BOOT" 36M ExFAT "PFDII_DATA" 0b
+diskutil partitionDisk "${disk_id}" 1 GPT  ExFAT "PFDII_DATA" 0b
 
 # Downloading Tiny Core Linux
 
@@ -32,38 +32,37 @@ function cleanup()
     hdiutil detach "${disk_id}"
 }
 
-# Copying kernel and system
+# Installing EFI bootloader (syslinux)
 
-cp -v "${core_disk_mount}"/boot/{vmlinuz,core.gz} /Volumes/PFDII_BOOT/
+ESP_mount=$(pwd)/ESP-mount
 
-# Installing bootloader
+mkdir -p "${ESP_mount}"
+
+mount -t msdos "${disk_id}s1" "${ESP_mount}"
+
+mkdir -p "${ESP_mount}/EFI/BOOT/"
 
 ## Configuring syslinux
 
-mkdir /Volumes/PFDII_BOOT/syslinux
-cat > /Volumes/PFDII_BOOT/syslinux/syslinux.cfg <<EOF
+cat > "${ESP_mount}/EFI/BOOT/syslinux.cfg" <<EOF
 DEFAULT vmlinuz
 LABEL vmlinuz
-    KERNEL ../vmlinuz
-    INITRD ../core.gz
-    APPEND nodhcp nozswap noswap ro noautonet quiet
+    KERNEL ../../vmlinuz
+    INITRD ../../core.gz
+    APPEND nodhcp nozswap noswap ro noautonet
 EOF
 #### Remove `quiet` kernel option if need debugging !
 
-echo "Created at $(date)" > /Volumes/PFDII_DATA/hello.txt
+# Copying kernel and system
 
-hdiutil unmount /Volumes/PFDII_BOOT
+cp -v "${core_disk_mount}"/boot/{vmlinuz,core.gz} "${ESP_mount}/"
+
+# Timestamping PFDII_DATA (mounted automatically by `diskutil partitionDisk`)
+
+echo "Created at $(date)" > /Volumes/PFDII_DATA/created-at.txt
+
+hdiutil unmount "${ESP_mount}"
 hdiutil unmount /Volumes/PFDII_DATA
-
-## Making vfat partition active
-
-fdisk -e "${disk_id}" <<EOF
-p
-f 1
-p
-w
-q
-EOF
 
 hdiutil detach "${core_disk_id}"    
 hdiutil detach "${disk_id}"
@@ -73,11 +72,7 @@ function cleanup()
     echo "noop"
 }
 
-### Building syslinux installer Docker image
-
 docker build --platform=linux/amd64 -f Dockerfile-syslinux -t pfdii-syslinux-installer .
-
-## Installing extlinux and MBR
 
 docker run -it --privileged --rm --platform=linux/amd64 \
        -v $(pwd)/disk.img:/workspace/disk.img \
@@ -89,8 +84,8 @@ cat <<EOF
 Done, you can try booting the image with:
 
   qemu-system-x86_64 -m 128M \\
+    -bios OVMF.fd \\
     -drive file=disk.img,format=raw,index=0,media=disk \\
-    -boot c \\
-    -display curses
+    -boot c
 
 EOF

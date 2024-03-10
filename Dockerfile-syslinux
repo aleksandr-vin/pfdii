@@ -5,6 +5,7 @@
 FROM archlinux:latest
 RUN pacman -Syu --noconfirm
 RUN pacman -S --noconfirm dosfstools syslinux util-linux multipath-tools
+#RUN pacman -S --noconfirm efibootmgr
 RUN pacman -Scc --noconfirm   # Clean the package cache to reduce the image size
 
 WORKDIR /workspace

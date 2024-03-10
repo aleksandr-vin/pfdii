@@ -30,8 +30,14 @@ fi
 
 mount "/dev/mapper/${loop_dev}" /mnt
 
-extlinux --install /mnt/syslinux
+DST="/mnt/EFI/BOOT"
+mkdir -p "${DST}"
+cp -r /usr/lib/syslinux/efi64/* "${DST}"
 
-dd bs=440 count=1 conv=notrunc oflag=sync if=/usr/lib/syslinux/bios/mbr.bin of=/dev/"${loop_dev:0:-2}"
+# Placing syslinux.efi under fallback name instead of calling efibootmgr:
+cp -r /usr/lib/syslinux/efi64/syslinux.efi "${DST}"/bootx64.efi
+
+#efibootmgr --create --disk /dev/"${loop_dev:0:-2}" \
+#	   --part 1 --loader /EFI/syslinux/syslinux.efi --label "Syslinux" --unicode
 
 umount /mnt
