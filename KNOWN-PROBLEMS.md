@@ -15,3 +15,8 @@ At the first boot with Secure Boot enabled:
 > 3. Browse to EFI/syslinux and select the loader.efi program file. HashTool asks for confirmation; respond Yes.
 
 More info on http://www.rodsbooks.com/efi-bootloaders/secureboot.html#preloader
+
+## Problems with building docker images
+
+Cached layers for old builds become outdated related to packages index, and installation of new packages fails.
+Rebuild the image manually with `--no-cache` option.

@@ -1,7 +1,7 @@
 FROM ubuntu:22.04
 
-RUN apt update
-RUN apt install -y gcc-multilib g++-multilib git iasl python3 python3-distutils \
+RUN apt update && \
+    apt install -y gcc-multilib g++-multilib git iasl python3 python3-distutils \
                    uuid-dev make g++ nasm #gcc-aarch64-linux-gnu
 
 WORKDIR /code
@@ -17,7 +17,5 @@ RUN cd edk2 && \
     source edksetup.sh && \
     make -C BaseTools && \
     build -a X64 -t GCC5 -p OvmfPkg/OvmfPkgX64.dsc
-
-#    GCC5_AARCH64_PREFIX=aarch64-linux-gnu- build -a AARCH64 -t GCC5 -p ArmVirtPkg/ArmVirtQemu.dsc
 
 CMD ["cp", "-v", "/code/edk2/Build/OvmfX64/DEBUG_GCC5/FV/OVMF.fd", "/out"]
