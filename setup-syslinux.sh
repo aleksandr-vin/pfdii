@@ -56,7 +56,4 @@ cat <<EOF
 EOF
 #
 
-#efibootmgr --create --disk /dev/"${loop_dev:0:-2}" \
-#	   --part 1 --loader /EFI/syslinux/syslinux.efi --label "Syslinux" --unicode
-
 umount /mnt
