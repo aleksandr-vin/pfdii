@@ -6,47 +6,58 @@ set -x
 trap cleanup EXIT
 
 cleanup() {
-    hdiutil detach /Volumes/PFDII_BOOT
     hdiutil detach /Volumes/Core
 }
 
-hdiutil detach /Volumes/PFDII_BOOT 2>/dev/null || echo -n ""
 hdiutil detach /Volumes/Core 2>/dev/null || echo -n ""
-hdiutil attach disk.img
 hdiutil attach Core-current.iso
+
+disk_id=$(hdiutil attach -nomount disk.img | head -1 | awk '{ print $1 }')
+
+function cleanup()
+{
+    hdiutil detach "${disk_id}"
+    hdiutil detach /Volumes/Core
+}
+
+ESP_mount=$(pwd)/ESP-mount
+
+mount -t msdos "${disk_id}s1" "${ESP_mount}"
 
 (cd custom-fs && find . | cpio -o -H newc | gzip -2 > ../pfdii.gz)
 
-[[ -r /Volumes/PFDII_BOOT/pfdii-core.gz ]] && mv /Volumes/PFDII_BOOT/{pfdii-,}core.gz
+[[ -r "${ESP_mount}"/pfdii-core.gz ]] && mv "${ESP_mount}"/{pfdii-,}core.gz
 
 cat /Volumes/Core/boot/core.gz \
     pfdii.gz \
-    > /Volumes/PFDII_BOOT/core.gz # overwriting bytes in place
+    > "${ESP_mount}"/core.gz # overwriting bytes in place
 
-mv /Volumes/PFDII_BOOT/{,pfdii-}core.gz
+mv "${ESP_mount}"/{,pfdii-}core.gz
 
-cat > /Volumes/PFDII_BOOT/syslinux/syslinux.cfg <<EOF
+cat > "${ESP_mount}"/EFI/BOOT/syslinux.cfg <<EOF
 DEFAULT vmlinuz
 LABEL vmlinuz
-    KERNEL ../vmlinuz
-    INITRD ../pfdii-core.gz
+    KERNEL ../../vmlinuz
+    INITRD ../../pfdii-core.gz
     APPEND nozswap noswap ro quiet
 EOF
 # noautonet nodhcp
 # Remove `quiet` kernel option if need debugging !
 
+echo "Showing sizes of init ramdisk:"
+find "${ESP_mount}" -name '*.gz' -ls
 
 ######### DONE ##########
 
 cat <<EOF
 Done, you can try it with:
 
-  qemu-system-x86_64 -m 128M \\
+  qemu-system-x86_64 -m 148M \\
+    -bios OVMF.fd \\
     -drive file=disk.img,format=raw,index=0,media=disk \\
     -boot c \\
-    -drive file=target-big.img,if=none,id=nvm \\
+    -drive file=target-big.img,format=raw,if=none,id=nvm \\
     -device nvme,serial=deadbeef,drive=nvm \\
-    -display curses \\
     -audiodev coreaudio,id=audio0 -machine pcspk-audiodev=audio0
 
 EOF
