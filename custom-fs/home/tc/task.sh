@@ -38,6 +38,8 @@ sudo mount /dev/sda2 /mnt # PFDII_DATA partition
 
 [[ -r /mnt/env ]] && source /mnt/env
 
+DELAY="${DELAY-5}"
+
 if [[ "${WITH_SOUND-yes}" != "yes" ]]
 then
     beep() {
