@@ -5,8 +5,16 @@
 FROM archlinux:latest
 RUN pacman -Syu --noconfirm
 RUN pacman -S --noconfirm dosfstools syslinux util-linux multipath-tools
-#RUN pacman -S --noconfirm efibootmgr
-RUN pacman -Scc --noconfirm   # Clean the package cache to reduce the image size
+
+#RUN pacman -S --noconfirm --needed efitools efibootmgr
+
+RUN curl -O https://aur.archlinux.org/cgit/aur.git/snapshot/preloader-signed.tar.gz && tar zxvf preloader-signed.tar.gz  && cd preloader-signed && useradd somebody && chown -R somebody:somebody .
+RUN pacman -S --noconfirm fakeroot
+USER somebody
+RUN cd preloader-signed && makepkg --syncdeps
+USER root
+
+#RUN pacman -Scc --noconfirm   # Clean the package cache to reduce the image size
 
 WORKDIR /workspace
 VOLUME /workspace
