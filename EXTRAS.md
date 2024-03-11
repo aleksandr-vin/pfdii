@@ -24,13 +24,15 @@ TARGET_PART=4
 
 echo "Resizing the /data partition"
 
-tce-load -i "${script_dir}"/e2fsprogs.tcz
+tce-load -i "${script_dir}"/*.tcz
 
-# Unmount the partition if it's mounted
-sudo umount "${TARGET_DEV}p${TARGET_PART}"
+# Reread partition table
+sudo hdparm -z "${TARGET_DEV}"
+
+sleep 3
 
 # Check the file system
-sudo e2fsck -f "${TARGET_DEV}p${TARGET_PART}"
+sudo e2fsck -p -f "${TARGET_DEV}p${TARGET_PART}" || echo -n ""
 
 # Resize the file system
 sudo resize2fs -p "${TARGET_DEV}p${TARGET_PART}"
