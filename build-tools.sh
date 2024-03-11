@@ -29,3 +29,10 @@ docker run --rm -it -v $(pwd)/lz4-1.9.4:/code --platform=linux/amd64 pfdii-tools
        sh -c "make clean; CFLAGS='-m32 --static' make -j"
 
 cp lz4-1.9.4/lz4 custom-fs/bin/
+
+## Building gparted
+
+git clone https://gitlab.gnome.org/GNOME/gparted.git
+
+docker run --rm -it -v $(pwd)/gparted:/code --platform=linux/amd64 pfdii-tools-builder \
+       sh -c "./autogen.sh && make clean; CFLAGS='-m32 --static' make -j"
